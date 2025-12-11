@@ -1,7 +1,6 @@
 import time
 from spherov2 import scanner
 from spherov2.sphero_edu import SpheroEduAPI
-import spherov2.commands.sensor
 import spherov2.commands.sensor as sensor_mod
 
 def ignore_collision_packet(listener, packet):

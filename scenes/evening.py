@@ -2,6 +2,7 @@ import time
 import config
 from assets import Palette
 
+
 class EveningRoutine:
     def __init__(self, bot):
         self.bot = bot
@@ -9,6 +10,8 @@ class EveningRoutine:
         self.last_waddle_time = 0
         self.snooze_until = 0
         self.calmed_down = False
+
+        self.avg_light = None
 
     def handle_snooze(self):
         print("15 Sekunden SNOOZE")
@@ -25,6 +28,17 @@ class EveningRoutine:
         time.sleep(20)
         self.bot.display_frame("ZZZ")
         self.bot.set_ambient_light(Palette.CENTER_ORANGE)
+
+    def handle_off(self, current_light):
+        print(f"Hand! (Avg: {self.avg_light:.1f} -> Curr: {current_light:.1f})")
+        self.bot.stop()
+        self.calmed_down = True
+        self.last_waddle_time = time.time()
+        self.bot.display_frame("EYES_CLOSED")
+        self.bot.off_ambient_light()
+        return "GO_TO_SLEEP"
+
+
         
 
     def run(self):
@@ -40,16 +54,32 @@ class EveningRoutine:
                 continue
 
             sensors = self.bot.get_sensor_data()
+            current_light = sensors['light']
+
+            if self.avg_light is None:
+                self.avg_light = current_light
 
             # 1. Überprüfung des Ladezustands            
             if sensors['is_charging']:
                 return "GO_TO_SLEEP"
 
-            # 2. Beruhigung mit der Hand (wenn es dunkel ist und ...)            
-            if (sensors['light'] < config.LIGHT_THRESHOLD_LOW) and (sensors['shake'] > 1.0):
-                continue
+            diff = current_light - self.avg_light
+            hand_detected = False
+            
+            if self.avg_light > 130:
+                if diff < -60: 
+                    hand_detected = True
+            else:
+                if diff > 60:
+                    hand_detected = True
+
+            if hand_detected and (sensors['shake'] < 0.5):
+                self.handle_off(current_light)
+                return "GO_TO_SLEEP"
+                     
             else:
                 self.calmed_down = False
+                self.avg_light = (self.avg_light * 0.95) + (current_light * 0.05)
 
             # 3. Überprüfung der Erschütterung (wenn Roboter einfach steht)            
             if sensors['shake'] > config.SHAKE_THRESHOLD:

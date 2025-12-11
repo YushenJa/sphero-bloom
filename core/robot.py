@@ -32,7 +32,7 @@ class BloomBot:
                     time.sleep(0.015) 
             self.current_frame = frame_name
         except Exception as e:
-            print(f"⚠️ Frame error: {e}")
+            print(f" Frame error: {e}")
 
     def set_ambient_light(self, color):
         self.droid.set_back_led(color)
@@ -79,51 +79,36 @@ class BloomBot:
 
            
             if time.time() - self.last_print_time > 0.5:
-                print(f"📊 SENSOR: {shake_score:.2f} | Light: {data['light']}")
+                print(f"SENSOR: {shake_score:.2f} | Light: {data['light']}")
                 self.last_print_time = time.time()
 
         except: pass
 
         return data
 
-    def wait_for_shake(self, duration, threshold):
+    def wait_for_interaction(self, duration, threshold):
 
         start_time = time.time()
         while time.time() - start_time < duration:
             data = self.get_sensor_data()
             if data["shake"] > threshold:
                 return True
+
             time.sleep(0.05)
         return False
 
     def waddle(self, shake_threshold):
 
         try:
-            print("🐧 Waddle (Танцую и слушаю тряску...)")
-            
-            self.droid.roll(30, 0, 1) 
-            if self.wait_for_shake(0.3, shake_threshold): 
-                self.stop()
-                return True
-
-            # Шаг 2: Влево
-            self.droid.roll(0, 0, 1)
-            if self.wait_for_shake(0.3, shake_threshold):
-                self.stop()
-                return True 
-            
-            # Шаг 3: Вправо (повтор)
-            self.droid.roll(330, 0, 1)
-            if self.wait_for_shake(0.3, shake_threshold):
+            self.droid.set_back_led(Color(255, 140, 0))
+            self.droid.set_front_led(Color(255, 140, 0))
+            print(" SPIN ")
+            self.droid.spin(360, 3) 
+            if self.wait_for_interaction(0.3, shake_threshold): 
                 self.stop()
                 return True
             
-            # Шаг 4: Влево
-            self.droid.roll(0, 0, 1)
-            if self.wait_for_shake(0.3, shake_threshold):
-                self.stop()
-                return True 
-
+            self.off_ambient_light()
             return False
             
         except Exception as e:
