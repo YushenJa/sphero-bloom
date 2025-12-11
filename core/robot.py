@@ -1,3 +1,4 @@
+import math
 import time
 from spherov2.types import Color
 
@@ -8,20 +9,128 @@ class BloomBot:
 
         self.droid = droid
         self.current_frame = None 
+        self.last_print_time = 0
+
+        try:
+            self.droid.set_stabilization(True)
+        except:
+            pass
 
     def display_frame(self, frame_name):
 
-        if self.current_frame == frame_name:
-            return
+        if self.current_frame == frame_name: return
 
-        print(f" [Display] male: {frame_name}")
-        
-        frame_data = FRAMES.get(frame_name, FRAMES["LOADING"])
+        print(f" [Display] Image: {frame_name}")
+        frame_data = FRAMES.get(frame_name, FRAMES.get("LOADING"))
 
-        for y in range(8):
-            for x in range(8):
-                char = frame_data[y][x]
-                color = get_color_from_char(char)
-                self.droid.set_matrix_pixel(x, y, color)
+        try:
+            for y in range(8):
+                for x in range(8):
+                    char = frame_data[y][x]
+                    color = get_color_from_char(char)
+                    self.droid.set_matrix_pixel(x, y, color)
+                    time.sleep(0.015) 
+            self.current_frame = frame_name
+        except Exception as e:
+            print(f"⚠️ Frame error: {e}")
+
+    def set_ambient_light(self, color):
+        self.droid.set_back_led(color)
+        self.droid.set_front_led(color)
+
+    def off_ambient_light(self):
+        self.droid.set_back_led(Color(0, 0, 0))
+        self.droid.set_front_led(Color(0, 0, 0))
+
+
+
+
+    def get_sensor_data(self):
+        data = {"light": 0, "is_charging": False, "shake": 0}
+
+        try:
+            lux = self.droid.get_luminosity()
+            if lux and 'ambient_light' in lux: data["light"] = lux['ambient_light']
+        except: pass
         
-        self.current_frame = frame_name
+        # Mikro-Pause für Bluetooth
+        time.sleep(0.02)
+
+        try:
+            pwr = str(self.droid.get_power_state())
+            if "Charging" in pwr or "Charged" in pwr: data["is_charging"] = True
+        except: pass
+
+        try:
+            gyro = self.droid.get_gyroscope()
+            accel = self.droid.get_acceleration()
+            shake_score = 0
+            
+            if gyro:
+                gx, gy, gz = abs(gyro.get('x',0)), abs(gyro.get('y',0)), abs(gyro.get('z',0))
+                shake_score += (gx + gy + gz) / 20.0
+
+            if accel:
+                ax, ay, az = accel.get('x',0), accel.get('y',0), accel.get('z',0)
+                g_force = math.sqrt(ax**2 + ay**2 + az**2)
+                shake_score += abs(g_force - 1.0) * 10 
+
+            data["shake"] = shake_score
+
+           
+            if time.time() - self.last_print_time > 0.5:
+                print(f"📊 SENSOR: {shake_score:.2f} | Light: {data['light']}")
+                self.last_print_time = time.time()
+
+        except: pass
+
+        return data
+
+    def wait_for_shake(self, duration, threshold):
+
+        start_time = time.time()
+        while time.time() - start_time < duration:
+            data = self.get_sensor_data()
+            if data["shake"] > threshold:
+                return True
+            time.sleep(0.05)
+        return False
+
+    def waddle(self, shake_threshold):
+
+        try:
+            print("🐧 Waddle (Танцую и слушаю тряску...)")
+            
+            self.droid.roll(30, 0, 1) 
+            if self.wait_for_shake(0.3, shake_threshold): 
+                self.stop()
+                return True
+
+            # Шаг 2: Влево
+            self.droid.roll(0, 0, 1)
+            if self.wait_for_shake(0.3, shake_threshold):
+                self.stop()
+                return True 
+            
+            # Шаг 3: Вправо (повтор)
+            self.droid.roll(330, 0, 1)
+            if self.wait_for_shake(0.3, shake_threshold):
+                self.stop()
+                return True
+            
+            # Шаг 4: Влево
+            self.droid.roll(0, 0, 1)
+            if self.wait_for_shake(0.3, shake_threshold):
+                self.stop()
+                return True 
+
+            return False
+            
+        except Exception as e:
+            print(f"Waddle error: {e}")
+            self.stop()
+            return False
+
+    def stop(self):
+        try: self.droid.roll(0, 0, 0)
+        except: pass
