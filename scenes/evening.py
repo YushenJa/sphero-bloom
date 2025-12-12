@@ -1,8 +1,6 @@
 import time
 import config
 from assets import Palette
-
-
 class EveningRoutine:
     def __init__(self, bot):
         self.bot = bot
@@ -13,33 +11,34 @@ class EveningRoutine:
 
         self.avg_light = None
 
+    #Snooze
     def handle_snooze(self):
         print("15 Sekunden SNOOZE")
         self.bot.stop()
-        self.bot.display_frame("EYES_OPEN")
+        self.bot.set_ambient_light(Palette.BAD_RED)
+        self.bot.display_frame("CLOCK")
         self.bot.off_ambient_light()
 
         try:
             self.bot.droid.play_sound("collision")
         except: pass
 
-        # Stille-Timer (jetzt 20 Sekunden, später 900)
-        self.snooze_until = time.time() + 20
-        time.sleep(20)
+        # Stille-Timer (jetzt 15 Sekunden, später 900)
+        self.snooze_until = time.time() + 15
+        time.sleep(15)
         self.bot.display_frame("ZZZ")
         self.bot.set_ambient_light(Palette.CENTER_ORANGE)
 
+    #Go to sleep
     def handle_off(self, current_light):
         print(f"Hand! (Avg: {self.avg_light:.1f} -> Curr: {current_light:.1f})")
         self.bot.stop()
+        self.bot.set_ambient_light(Palette.BAD_RED) 
         self.calmed_down = True
         self.last_waddle_time = time.time()
         self.bot.display_frame("EYES_CLOSED")
         self.bot.off_ambient_light()
         return "GO_TO_SLEEP"
-
-
-        
 
     def run(self):
         print("Szene: ABEND aktiviert")
@@ -66,14 +65,14 @@ class EveningRoutine:
             diff = current_light - self.avg_light
             hand_detected = False
             
-            if self.avg_light > 130:
-                if diff < -60: 
-                    hand_detected = True
-            else:
-                if diff > 60:
+            # Adaptive hand detection
+            if self.avg_light > 5:
+                ratio = current_light / self.avg_light
+
+                if ratio < 0.70:   # 30% weniger Licht
                     hand_detected = True
 
-            if hand_detected and (sensors['shake'] < 0.5):
+            if hand_detected and (sensors['shake'] < 0.3):
                 self.handle_off(current_light)
                 return "GO_TO_SLEEP"
                      

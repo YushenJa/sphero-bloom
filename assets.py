@@ -23,6 +23,7 @@ class Palette:
 # O = Orange (Center)
 # W = Weiß
 # R = Rot
+# B = Blue
 
 FRAMES = {
     # Animation „Zzz“ (Schlaf)
@@ -48,14 +49,26 @@ FRAMES = {
         "........",
         "........",
     ],
+    
+    #Snooze
+    "CLOCK": [
+    "..WWWW..",
+    ".WB...W.",
+    "W..B...W",
+    "W...BBBW",
+    "W......W",
+    ".W....W.",
+    "..WWWW..",
+    "........",
+    ],
 
     # Geschlossene Augen (Schläft)
     "EYES_CLOSED": [
         "........",
         "........",
         "........",
-        "YYY..YYY",
-        "YYY..YYY",
+        "W.W..W.W",
+        "WWW..WWW",
         "........",
         "........",
         "........",

@@ -1,3 +1,4 @@
+#.\venv\Scripts\activate
 import time
 from spherov2 import scanner
 from spherov2.sphero_edu import SpheroEduAPI
