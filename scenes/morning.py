@@ -16,7 +16,6 @@ class MorningRoutine:
             self.bot.roll(180, 50, 0.5)
             self.bot.roll(270, 50, 0.5)
             """
-            self.bot.roll(0, 10, 5)
     def stop(self):
         self.is_running = False
         self.bot.stop()
