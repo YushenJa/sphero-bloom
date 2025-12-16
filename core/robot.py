@@ -1,6 +1,8 @@
 import math
 import time
 from spherov2.types import Color
+import os
+import pygame
 
 from assets import FRAMES, get_color_from_char
 
@@ -15,6 +17,29 @@ class BloomBot:
             self.droid.set_stabilization(True)
         except:
             pass
+
+        try:
+            pygame.mixer.init()
+            print("🔊 Audio System: Online")
+        except Exception as e:
+            print(f"⚠️ Audio Error: {e}")
+
+
+
+    def play_mp3(self, filename):
+        try:
+            
+            sound_path = os.path.join("sound", filename)
+            
+            if os.path.exists(sound_path):
+                pygame.mixer.music.load(sound_path)
+                pygame.mixer.music.play()
+            else:
+                print(f"⚠️ Sound file not found: {sound_path}")
+        except Exception as e:
+            print(f"⚠️ Play Error: {e}")
+
+
 
     def display_frame(self, frame_name):
 

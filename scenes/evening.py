@@ -15,34 +15,30 @@ class EveningRoutine:
     def handle_snooze(self):
         print("15 Sekunden SNOOZE")
         self.bot.stop()
+        self.bot.play_mp3("snooze-[AudioTrimmer.com].mp3")
         self.bot.set_ambient_light(Palette.BAD_RED)
         self.bot.display_frame("CLOCK")
         self.bot.off_ambient_light()
 
-        try:
-            self.bot.droid.play_sound("collision")
-        except: pass
-
         # Stille-Timer (jetzt 15 Sekunden, später 900)
         self.snooze_until = time.time() + 15
         time.sleep(15)
-        self.bot.display_frame("ZZZ")
-        self.bot.set_ambient_light(Palette.CENTER_ORANGE)
 
     #Go to sleep
     def handle_off(self, current_light):
         print(f"Hand! (Avg: {self.avg_light:.1f} -> Curr: {current_light:.1f})")
         self.bot.stop()
+        self.bot.play_mp3("discharged-battery-151926.mp3")
         self.bot.set_ambient_light(Palette.BAD_RED) 
         self.calmed_down = True
         self.last_waddle_time = time.time()
         self.bot.display_frame("EYES_CLOSED")
         self.bot.off_ambient_light()
-        return "GO_TO_SLEEP"
 
     def run(self):
         print("Szene: ABEND aktiviert")
         self.bot.display_frame("ZZZ")
+        self.bot.play_mp3("wake-up-the-robot-84894.mp3")
         self.bot.set_ambient_light(Palette.CENTER_ORANGE)
 
         while self.is_running:
@@ -62,20 +58,18 @@ class EveningRoutine:
             if sensors['is_charging']:
                 return "GO_TO_SLEEP"
 
-            diff = current_light - self.avg_light
             hand_detected = False
             
             # Adaptive hand detection
             if self.avg_light > 5:
                 ratio = current_light / self.avg_light
 
-                if ratio < 0.70:   # 30% weniger Licht
+                if ratio < 0.70: 
                     hand_detected = True
 
             if hand_detected and (sensors['shake'] < 0.3):
                 self.handle_off(current_light)
                 return "GO_TO_SLEEP"
-                     
             else:
                 self.calmed_down = False
                 self.avg_light = (self.avg_light * 0.95) + (current_light * 0.05)
