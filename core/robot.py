@@ -41,10 +41,7 @@ class BloomBot:
     def off_ambient_light(self):
         self.droid.set_back_led(Color(0, 0, 0))
         self.droid.set_front_led(Color(0, 0, 0))
-
-
-
-
+    
     def get_sensor_data(self):
         data = {"light": 0, "is_charging": False, "shake": 0}
 
@@ -116,6 +113,17 @@ class BloomBot:
             self.stop()
             return False
 
+    """""
     def stop(self):
         try: self.droid.roll(0, 0, 0)
         except: pass
+    """""
+    
+    def roll(self, heading, speed, duration):
+        self.droid.roll(heading, speed, duration)
+
+    def stop(self, heading=None):
+        self.droid.stop_roll(heading)
+    
+    def clear_matrix(self):
+        self.droid.clear_matrix()
