@@ -15,7 +15,7 @@ class EveningRoutine:
     def handle_snooze(self):
         print("15 Sekunden SNOOZE")
         self.bot.stop()
-        self.bot.set_ambient_light(Palette.BAD_RED)
+        self.bot.set_ambient_light(Palette.BAD_RED) #red means that the interaction was registered
         self.bot.display_frame("CLOCK")
         self.bot.off_ambient_light()
 
@@ -27,7 +27,7 @@ class EveningRoutine:
         self.snooze_until = time.time() + 15
         time.sleep(15)
         self.bot.display_frame("ZZZ")
-        self.bot.set_ambient_light(Palette.CENTER_ORANGE)
+        self.bot.set_ambient_light(Palette.ORANGE)
 
     #Go to sleep
     def handle_off(self, current_light):
@@ -37,13 +37,14 @@ class EveningRoutine:
         self.calmed_down = True
         self.last_waddle_time = time.time()
         self.bot.display_frame("EYES_CLOSED")
+        time.sleep(6) 
         self.bot.off_ambient_light()
         return "GO_TO_SLEEP"
 
     def run(self):
         print("Szene: ABEND aktiviert")
         self.bot.display_frame("ZZZ")
-        self.bot.set_ambient_light(Palette.CENTER_ORANGE)
+        self.bot.set_ambient_light(Palette.ORANGE)
 
         while self.is_running:
             current_time = time.time()

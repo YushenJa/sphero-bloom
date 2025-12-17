@@ -4,10 +4,10 @@ from spherov2.types import Color
 class Palette:
     OFF = Color(0, 0, 0)
     WHITE = Color(255, 255, 255)
-    YELLOW = Color(255, 255, 0)
+    YELLOW = Color(255, 200, 0)
     STEM_GREEN = Color(0, 150, 0)
     PETAL_PINK = Color(255, 20, 147)
-    ORANGE = Color(255, 90, 0)
+    ORANGE = Color(255, 50, 0)
     LOADING_BLUE = Color(0, 0, 255)
     BAD_RED = Color(255, 0, 0)
 
@@ -55,7 +55,7 @@ FRAMES = {
     "W...BBBW",
     "W......W",
     ".W....W.",
-    "..WWWW..",
+    "..WWW..",
     "........",
     ],
 
