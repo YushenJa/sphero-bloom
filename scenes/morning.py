@@ -14,10 +14,10 @@ class MorningRoutine:
             self.bot.set_ambient_light(Palette.YELLOW)
             self.bot.display_frame("SUN")
             #Combines heading(0-360°), speed(-255-255), and duration (sec).
-            self.bot.roll(0, 50, 1) #(heading: int, speed: int, duration: float)
-            self.bot.roll(90, 50, 1)
-            self.bot.roll(180, 50, 1)
-            self.bot.roll(270, 50, 1)
+            self.bot.roll(0, 50, 0.5) #(heading: int, speed: int, duration: float)
+            self.bot.roll(90, 50, 0.5)
+            self.bot.roll(180, 50, 0.5)
+            self.bot.roll(270, 50, 0.5)
             
     def stop(self):
         self.is_running = False
