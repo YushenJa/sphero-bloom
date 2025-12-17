@@ -3,8 +3,10 @@ import time
 from spherov2.types import Color
 import os
 import pygame
+from assets import Palette
+from assets import FRAMES
+import threading
 
-from assets import FRAMES, get_color_from_char
 
 class BloomBot:
     def __init__(self, droid):
@@ -12,6 +14,8 @@ class BloomBot:
         self.droid = droid
         self.current_frame = None 
         self.last_print_time = 0
+        self.frame_animations = {}
+        self.register_all_frames()
 
         try:
             self.droid.set_stabilization(True)
@@ -66,10 +70,7 @@ class BloomBot:
     def off_ambient_light(self):
         self.droid.set_back_led(Color(0, 0, 0))
         self.droid.set_front_led(Color(0, 0, 0))
-
-
-
-
+    
     def get_sensor_data(self):
         data = {"light": 0, "is_charging": False, "shake": 0}
 
@@ -140,7 +141,93 @@ class BloomBot:
             print(f"Waddle error: {e}")
             self.stop()
             return False
+    
+    def roll(self, heading, speed, duration):
+        self.droid.roll(heading, speed, duration)
 
-    def stop(self):
-        try: self.droid.roll(0, 0, 0)
-        except: pass
+    def stop(self, heading=None):
+        self.droid.stop_roll(heading)
+    
+    def clear_matrix(self):
+        self.droid.clear_matrix()
+
+    def register_all_frames(self):
+        animation_id = 0
+        
+        # Max 16 colors
+        palette = [
+            Palette.OFF,           # 0
+            Palette.YELLOW,        # 1
+            Palette.WHITE,         # 2
+            Palette.STEM_GREEN,    # 3
+            Palette.PETAL_PINK,    # 4
+            Palette.ORANGE,        # 5
+            Palette.LOADING_BLUE,  # 6
+            Palette.BAD_RED,       # 7
+        ]
+        
+        char_to_index = {
+            '.': 0,  # OFF
+            'Y': 1,  # YELLOW
+            'W': 2,  # WHITE
+            'G': 3,  # STEM_GREEN
+            'P': 4,  # PETAL_PINK
+            'O': 5,  # ORANGE
+            'B': 6,  # LOADING_BLUE
+            'R': 7,  # BAD_RED
+        }
+        
+        for frame_name, frame_data in FRAMES.items():
+            # Convert strings to indexe's matrix  
+            frame_matrix = []
+            for row_str in frame_data:
+                row = [char_to_index[char] for char in row_str]
+                frame_matrix.append(row)
+            
+            # Register animation
+            self.droid.register_matrix_animation(
+                frames=[frame_matrix],
+                palette=palette,
+                fps=1,
+                transition=False
+            )
+            
+            self.frame_animations[frame_name] = animation_id
+            animation_id += 1
+        
+        print(f" [BloomBot] {len(self.frame_animations)} frames registered")
+    
+
+    def display_frame(self, frame_name):
+        if self.current_frame == frame_name:
+            return
+        
+        if frame_name not in self.frame_animations:
+            print(f" [Display] Frame '{frame_name}' nicht gefunden")
+            frame_name = "LOADING"  # fallback
+        
+        print(f" [Display] Image: {frame_name}")
+        
+        animation_id = self.frame_animations[frame_name]
+        self.droid.clear_matrix()
+        self.droid.play_matrix_animation(animation_id, loop=False)
+        
+        self.current_frame = frame_name
+
+        """ def display_frame(self, frame_name):
+
+        if self.current_frame == frame_name: return
+
+        print(f" [Display] Image: {frame_name}")
+        frame_data = FRAMES.get(frame_name, FRAMES.get("LOADING"))
+
+        try:
+            for y in range(8):
+                for x in range(8):
+                    char = frame_data[y][x]
+                    color = get_color_from_char(char)
+                    self.droid.set_matrix_pixel(x, y, color)
+                    time.sleep(0.015) 
+            self.current_frame = frame_name
+        except Exception as e:
+            print(f" Frame error: {e}") """
