@@ -11,10 +11,10 @@ class RoutineController:
             self.current_routine.stop()
         self.current_routine = None
 
-    def start_morning(self, duration=10):
+    def start_morning(self):
         self.stop_current()
         self.current_routine = MorningRoutine(self.bot)
-        self.current_routine.run(duration)
+        self.current_routine.run()
 
     def start_evening(self):
         self.stop_current()

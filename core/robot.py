@@ -2,7 +2,9 @@ import math
 import time
 from spherov2.types import Color
 from assets import Palette
-from assets import FRAMES, get_color_from_char
+from assets import FRAMES
+import threading
+
 
 class BloomBot:
     def __init__(self, droid):
@@ -13,7 +15,6 @@ class BloomBot:
         self.frame_animations = {}
         self.register_all_frames()
 
-        
         try:
             self.droid.set_stabilization(True)
         except:
@@ -169,7 +170,7 @@ class BloomBot:
         self.droid.play_matrix_animation(animation_id, loop=False)
         
         self.current_frame = frame_name
-    
+
         """ def display_frame(self, frame_name):
 
         if self.current_frame == frame_name: return
