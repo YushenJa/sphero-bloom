@@ -4,13 +4,10 @@ from spherov2.types import Color
 class Palette:
     OFF = Color(0, 0, 0)
     WHITE = Color(255, 255, 255)
-    
-    SLEEPY_YELLOW = Color(100, 70, 0)
-    
+    YELLOW = Color(255, 200, 0)
     STEM_GREEN = Color(0, 150, 0)
     PETAL_PINK = Color(255, 20, 147)
-    CENTER_ORANGE = Color(255, 140, 0)
-    
+    ORANGE = Color(255, 50, 0)
     LOADING_BLUE = Color(0, 0, 255)
     BAD_RED = Color(255, 0, 0)
 
@@ -86,14 +83,14 @@ FRAMES = {
     ],
 
     "SUN": [
-        "........",
-        "....Y...",
-        "........",
-        "....Y...",
-        ".Y.YOY.Y",
-        "....Y...",
-        "........",
-        "....Y...",
+        "Y..YY..Y",
+        ".Y.OO.Y.",
+        "..OYYO..",
+        "YOYYYYOY",
+        "YOYYYYOY",
+        "..OYYO..",
+        ".Y.OO.Y.",
+        "Y..YY..Y",
     ],
 
     # Blume Stufe 1: Keimling (Schlechter Schlaf)
@@ -148,11 +145,11 @@ FRAMES = {
 }
 
 def get_color_from_char(char):
-    if char == 'Y': return Palette.SLEEPY_YELLOW
+    if char == 'Y': return Palette.YELLOW
     if char == 'W': return Palette.WHITE
     if char == 'G': return Palette.STEM_GREEN
     if char == 'P': return Palette.PETAL_PINK
-    if char == 'O': return Palette.CENTER_ORANGE
+    if char == 'O': return Palette.ORANGE
     if char == 'B': return Palette.LOADING_BLUE
     if char == 'R': return Palette.BAD_RED
     return Palette.OFF

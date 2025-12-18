@@ -1,6 +1,7 @@
 import time
 import config
 from assets import Palette
+
 class EveningRoutine:
     def __init__(self, bot):
         self.bot = bot
@@ -32,7 +33,7 @@ class EveningRoutine:
         
         # 1. Initiale Aktionen (Licht aus, Augen zu, Sound)
         self.bot.stop()
-        self.bot.set_ambient_light(Palette.CENTER_ORANGE)
+        self.bot.set_ambient_light(Palette.ORANGE)
         self.bot.play_mp3("cute-snoring-robot.mp3")
         self.bot.display_frame("EYES_HALF_CLOSED")
         self.bot.off_ambient_light()
@@ -64,7 +65,7 @@ class EveningRoutine:
         print("Szene: ABEND aktiviert")
         self.bot.display_frame("ZZZ")
         self.bot.play_mp3("wake-up-the-robot-84894.mp3")
-        self.bot.set_ambient_light(Palette.CENTER_ORANGE)
+        self.bot.set_ambient_light(Palette.ORANGE)
 
         while self.is_running:
             current_time = time.time()

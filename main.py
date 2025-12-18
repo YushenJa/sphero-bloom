@@ -2,6 +2,8 @@ import time
 from spherov2 import scanner
 from spherov2.sphero_edu import SpheroEduAPI
 import spherov2.commands.sensor as sensor_mod
+from controller.controller import RoutineController
+
 
 def ignore_collision_packet(listener, packet):
     pass
@@ -10,7 +12,6 @@ sensor_mod.__collision_detected_notify_helper = ignore_collision_packet
 
 from core.robot import BloomBot
 from assets import FRAMES
-from scenes.evening import EveningRoutine
 
 def show_gallery(bot):
     print("Galerie starten...")
@@ -31,13 +32,9 @@ def main():
     with SpheroEduAPI(toy) as droid:
         bot = BloomBot(droid)
         
-        evening_scene = EveningRoutine(bot)
-        
-        next_step = evening_scene.run()
-        
-        if next_step == "GO_TO_SLEEP":
-            print("...")
-
+        controller = RoutineController(bot)
+        controller.start_evening()   # start_evening() or start_morning()
+        controller.start_morning()
 
 if __name__ == "__main__":
     main()
