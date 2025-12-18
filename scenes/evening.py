@@ -15,7 +15,7 @@ class EveningRoutine:
     def handle_snooze(self):
         print("15 Sekunden SNOOZE")
         self.bot.stop()
-        self.bot.play_mp3("snooze-[AudioTrimmer.com].mp3")
+        self.bot.play_mp3("roboter-sound-v1_Y3D6Kcvq.mp3")
         self.bot.set_ambient_light(Palette.BAD_RED)
         self.bot.display_frame("CLOCK")
         self.bot.off_ambient_light()
@@ -23,17 +23,42 @@ class EveningRoutine:
         # Stille-Timer (jetzt 15 Sekunden, später 900)
         self.snooze_until = time.time() + 15
         time.sleep(15)
+        self.bot.display_frame("ZZZ")
+        self.bot.play_mp3("wake-up-the-robot-84894.mp3")
 
     #Go to sleep
     def handle_off(self, current_light):
         print(f"Hand! (Avg: {self.avg_light:.1f} -> Curr: {current_light:.1f})")
+        
+        # 1. Initiale Aktionen (Licht aus, Augen zu, Sound)
         self.bot.stop()
-        self.bot.play_mp3("discharged-battery-151926.mp3")
-        self.bot.set_ambient_light(Palette.BAD_RED) 
-        self.calmed_down = True
-        self.last_waddle_time = time.time()
-        self.bot.display_frame("EYES_CLOSED")
+        self.bot.set_ambient_light(Palette.CENTER_ORANGE)
+        self.bot.play_mp3("cute-snoring-robot.mp3")
+        self.bot.display_frame("EYES_HALF_CLOSED")
         self.bot.off_ambient_light()
+
+        time.sleep(1)
+        
+        last_snore_time = time.time()
+        SNORE_INTERVAL = 20
+
+        # 2. Die Endlos-Schleife (Die "Falle")
+        while True:
+            sensors = self.bot.get_sensor_data()
+            if sensors['shake'] < 0.15 and self.bot.is_charging():
+                self.bot.play_mp3("off.mp3")
+                self.bot.display_frame("EYES_CLOSED")
+                print("⚡ Ladestation erkannt! Beende Programm.")
+                return
+
+
+            if time.time() - last_snore_time > SNORE_INTERVAL:
+                print("🔊 Schnarchen...")
+                self.bot.play_mp3("cute-snoring-robot.mp3")
+                last_snore_time = time.time()
+                self.bot.display_frame("EYES_HALF_CLOSED")
+
+            time.sleep(1)
 
     def run(self):
         print("Szene: ABEND aktiviert")
@@ -54,10 +79,6 @@ class EveningRoutine:
             if self.avg_light is None:
                 self.avg_light = current_light
 
-            # 1. Überprüfung des Ladezustands            
-            if sensors['is_charging']:
-                return "GO_TO_SLEEP"
-
             hand_detected = False
             
             # Adaptive hand detection
@@ -70,6 +91,7 @@ class EveningRoutine:
             if hand_detected and (sensors['shake'] < 0.3):
                 self.handle_off(current_light)
                 return "GO_TO_SLEEP"
+
             else:
                 self.calmed_down = False
                 self.avg_light = (self.avg_light * 0.95) + (current_light * 0.05)

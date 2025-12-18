@@ -3,6 +3,8 @@ import time
 from spherov2.types import Color
 import os
 import pygame
+from spherov2 import scanner
+
 
 from assets import FRAMES, get_color_from_char
 
@@ -82,11 +84,6 @@ class BloomBot:
         time.sleep(0.02)
 
         try:
-            pwr = str(self.droid.get_power_state())
-            if "Charging" in pwr or "Charged" in pwr: data["is_charging"] = True
-        except: pass
-
-        try:
             gyro = self.droid.get_gyroscope()
             accel = self.droid.get_acceleration()
             shake_score = 0
@@ -144,3 +141,30 @@ class BloomBot:
     def stop(self):
         try: self.droid.roll(0, 0, 0)
         except: pass
+
+
+    def is_charging(self):
+        try:
+            self.droid.roll(0, 10, 0.5)
+
+            gyro = self.droid.get_gyroscope()
+            accel = self.droid.get_acceleration()
+            shake_score = 0
+            
+            if gyro:
+                gx, gy, gz = abs(gyro.get('x',0)), abs(gyro.get('y',0)), abs(gyro.get('z',0))
+                shake_score += (gx + gy + gz) / 20.0
+
+            if accel:
+                ax, ay, az = accel.get('x',0), accel.get('y',0), accel.get('z',0)
+                g_force = math.sqrt(ax**2 + ay**2 + az**2)
+                shake_score += abs(g_force - 1.0) * 10 
+
+            print (shake_score)
+
+
+
+            return shake_score < 0.25
+        except:
+            return False
+        
