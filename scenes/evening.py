@@ -2,6 +2,8 @@ import time
 import config
 from assets import Palette
 
+HAND_DETECT_TIME = 1.5  #seconds that it has to be covered
+
 class EveningRoutine:
     def __init__(self, bot):
         self.bot = bot
@@ -9,7 +11,6 @@ class EveningRoutine:
         self.last_waddle_time = 0
         self.snooze_until = 0
         self.calmed_down = False
-
         self.avg_light = None
 
     #Snooze
@@ -108,19 +109,31 @@ class EveningRoutine:
                     return "EXCEPTION_DAY"
             
             # Adaptive hand detection
-            if self.avg_light > 5:
-                ratio = current_light / self.avg_light
+            ratio = current_light / max(self.avg_light, 1.0)
 
-                if ratio < 0.50: 
-                    hand_detected = True
+            #Check both relative and absolute drop
+            if (ratio < 0.7 and
+                current_light < self.avg_light - 10):
+
+                if not self.hand_is_covering:
+                    self.hand_is_covering = True
+                    self.hand_cover_start_time = current_time
+                else:
+                    if current_time - self.hand_cover_start_time >= HAND_DETECT_TIME:
+                        hand_detected = True
+            else:
+                # Light recovered -> reset state
+                self.hand_is_covering = False
+                self.hand_cover_start_time = None              
+
+            # Update baseline omly if not covered
+            if not self.hand_is_covering:
+                self.avg_light = (self.avg_light * 0.95) + (current_light * 0.05)
 
             if hand_detected and (sensors['shake'] < 0.3):
                 self.handle_off(current_light)
                 return "GO_TO_SLEEP"
-
-            else:
-                self.calmed_down = False
-                self.avg_light = (self.avg_light * 0.95) + (current_light * 0.05)
+   
 
 
             # 3. Überprüfung der Erschütterung (wenn Roboter einfach steht)            
@@ -130,8 +143,6 @@ class EveningRoutine:
 
             # 4. Waddle
             if current_time - self.last_waddle_time > config.WADDLE_INTERVAL_SECONDS:
-                
-
                 was_shaken = self.bot.waddle(config.SHAKE_THRESHOLD)
                 
                 if was_shaken:
