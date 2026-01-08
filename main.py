@@ -33,8 +33,11 @@ def main():
         bot = BloomBot(droid)
         
         controller = RoutineController(bot)
-        controller.start_evening()   # start_evening() or start_morning()
-        controller.start_morning()
+        tag = controller.start_evening()  
+        
+        if tag:
+            time.sleep(15)
+            controller.start_morning()
 
 if __name__ == "__main__":
     main()

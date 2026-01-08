@@ -17,10 +17,6 @@ class BloomBot:
         self.frame_animations = {}
         self.register_all_frames()
 
-        try:
-            self.droid.set_stabilization(True)
-        except:
-            pass
 
         try:
             pygame.mixer.init()
@@ -45,23 +41,6 @@ class BloomBot:
 
 
 
-    def display_frame(self, frame_name):
-
-        if self.current_frame == frame_name: return
-
-        print(f" [Display] Image: {frame_name}")
-        frame_data = FRAMES.get(frame_name, FRAMES.get("LOADING"))
-
-        try:
-            for y in range(8):
-                for x in range(8):
-                    char = frame_data[y][x]
-                    color = get_color_from_char(char)
-                    self.droid.set_matrix_pixel(x, y, color)
-                    time.sleep(0.015) 
-            self.current_frame = frame_name
-        except Exception as e:
-            print(f" Frame error: {e}")
 
     def set_ambient_light(self, color):
         self.droid.set_back_led(color)
@@ -72,7 +51,7 @@ class BloomBot:
         self.droid.set_front_led(Color(0, 0, 0))
     
     def get_sensor_data(self):
-        data = {"light": 0, "is_charging": False, "shake": 0}
+        data = {"light": 0, "is_charging": False, "shake": 0, "spin_value1": 0, "spin_value3": 0}
 
         try:
             lux = self.droid.get_luminosity()
@@ -95,12 +74,15 @@ class BloomBot:
                 ax, ay, az = accel.get('x',0), accel.get('y',0), accel.get('z',0)
                 g_force = math.sqrt(ax**2 + ay**2 + az**2)
                 shake_score += abs(g_force - 1.0) * 10 
+                data["spin_value1"] = ax
+                data["spin_value2"] = ay
+                data["spin_value3"] = az
 
             data["shake"] = shake_score
 
            
             if time.time() - self.last_print_time > 0.5:
-                print(f"SENSOR: {shake_score:.2f} | Light: {data['light']}")
+                print(f"SENSOR: {shake_score:.2f} | Light: {data['light']} | 1: {data['spin_value1']:.0f} | 2: {data['spin_value2']:.0f} | 3: {data['spin_value3']:.0f}")
                 self.last_print_time = time.time()
 
         except: pass
@@ -214,23 +196,6 @@ class BloomBot:
         
         self.current_frame = frame_name
 
-        """ def display_frame(self, frame_name):
-
-        if self.current_frame == frame_name: return
-
-        print(f" [Display] Image: {frame_name}")
-        frame_data = FRAMES.get(frame_name, FRAMES.get("LOADING"))
-
-        try:
-            for y in range(8):
-                for x in range(8):
-                    char = frame_data[y][x]
-                    color = get_color_from_char(char)
-                    self.droid.set_matrix_pixel(x, y, color)
-                    time.sleep(0.015) 
-            self.current_frame = frame_name
-        except Exception as e:
-            print(f" Frame error: {e}") """
 
 
     def is_charging(self):

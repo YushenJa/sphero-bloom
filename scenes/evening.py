@@ -47,6 +47,11 @@ class EveningRoutine:
         while True:
             sensors = self.bot.get_sensor_data()
             if sensors['shake'] < 0.15 and self.bot.is_charging():
+                self.bot.display_frame("LOADING")
+                self.bot.play_mp3("live-chat-353605.mp3")
+
+                time.sleep(3)
+
                 self.bot.play_mp3("off.mp3")
                 self.bot.display_frame("EYES_CLOSED")
                 print("⚡ Ladestation erkannt! Beende Programm.")
@@ -81,12 +86,32 @@ class EveningRoutine:
                 self.avg_light = current_light
 
             hand_detected = False
+
+            print (sensors["spin_value1"])
+            print (sensors["spin_value3"])
+            if sensors["spin_value1"] < -0.9 and sensors["spin_value3"] < 0.15:
+
+                if sensors['shake'] < 10:
+                    print("Ausnahmetag")
+
+                    self.bot.off_ambient_light()
+                    self.bot.play_mp3("live-chat-353605.mp3")
+                    time.sleep(1)
+                    self.bot.play_mp3("audio_2026-01-07_22-00-46.mp3")
+                    self.bot.display_frame("LOADING")
+                    self.bot.stop()
+                        
+                    time.sleep(3)
+                    self.bot.clear_matrix()
+                    self.bot.off_ambient_light()
+                        
+                    return "EXCEPTION_DAY"
             
             # Adaptive hand detection
             if self.avg_light > 5:
                 ratio = current_light / self.avg_light
 
-                if ratio < 0.70: 
+                if ratio < 0.50: 
                     hand_detected = True
 
             if hand_detected and (sensors['shake'] < 0.3):
@@ -96,6 +121,7 @@ class EveningRoutine:
             else:
                 self.calmed_down = False
                 self.avg_light = (self.avg_light * 0.95) + (current_light * 0.05)
+
 
             # 3. Überprüfung der Erschütterung (wenn Roboter einfach steht)            
             if sensors['shake'] > config.SHAKE_THRESHOLD:

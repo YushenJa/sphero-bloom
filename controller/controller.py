@@ -23,4 +23,8 @@ class RoutineController:
 
         if result == "GO_TO_SLEEP":
             print("Going to sleep...")
-            return
+            return True
+        
+        if result == "EXCEPTION_DAY":
+            print("Going to sleep...")
+            return False
