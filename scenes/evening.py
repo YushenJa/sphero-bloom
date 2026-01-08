@@ -109,30 +109,18 @@ class EveningRoutine:
                     return "EXCEPTION_DAY"
             
             # Adaptive hand detection
-            ratio = current_light / max(self.avg_light, 1.0)
+            if self.avg_light > 5:
+                ratio = current_light / self.avg_light
 
-            #Check both relative and absolute drop
-            if (ratio < 0.7 and
-                current_light < self.avg_light - 10):
-
-                if not self.hand_is_covering:
-                    self.hand_is_covering = True
-                    self.hand_cover_start_time = current_time
-                else:
-                    if current_time - self.hand_cover_start_time >= HAND_DETECT_TIME:
-                        hand_detected = True
-            else:
-                # Light recovered -> reset state
-                self.hand_is_covering = False
-                self.hand_cover_start_time = None              
-
-            # Update baseline omly if not covered
-            if not self.hand_is_covering:
-                self.avg_light = (self.avg_light * 0.95) + (current_light * 0.05)
+                if ratio < 0.50: 
+                    hand_detected = True
 
             if hand_detected and (sensors['shake'] < 0.3):
                 self.handle_off(current_light)
                 return "GO_TO_SLEEP"
+            else:
+                self.calmed_down = False
+                self.avg_light = (self.avg_light * 0.95) + (current_light * 0.05)
    
 
 

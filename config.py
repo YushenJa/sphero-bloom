@@ -9,7 +9,7 @@ WADDLE_INTERVAL_SECONDS = 3
 
 # --- EMPFINDLICHKEIT (Sensoren) ---
 # Schüttelstärke für SNOOZE
-SHAKE_THRESHOLD = 40
+SHAKE_THRESHOLD = 20
 
 # Dunkelheitsschwelle für „Hand oben“ (0 – völlige Dunkelheit, 1000 – hell)
 LIGHT_THRESHOLD_LOW = 50 
