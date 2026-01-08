@@ -1,4 +1,3 @@
-import time
 from spherov2 import scanner
 from spherov2.sphero_edu import SpheroEduAPI
 import spherov2.commands.sensor as sensor_mod
@@ -33,8 +32,8 @@ def main():
         bot = BloomBot(droid)
         
         controller = RoutineController(bot)
-        controller.start_evening()   # start_evening() or start_morning()
-        controller.start_morning()
+        controller.start_evening()   
+        #controller.start_morning()
 
 if __name__ == "__main__":
     main()
